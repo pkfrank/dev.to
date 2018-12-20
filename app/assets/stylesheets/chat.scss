@@ -1,4 +1,5 @@
 @import 'variables';
+@import 'connect/_channel-details';
 
 // High level classes
 .chat-page-wrapper{
@@ -142,7 +143,7 @@
   padding: 3px 12px;
   display: inline-block;
   border-radius: 3px;
-  background: $lightest-gray;
+  background: var(--theme-background, $lightest-gray);
   border: 1px solid $light-medium-gray;
   font-weight: bold;
   cursor: default;
@@ -448,6 +449,7 @@
   }
 }
 
+
 .activechatchannel__activecontentuserdetails{
   margin-top:20px;
   font-family: $monospace;
@@ -658,7 +660,7 @@
   bottom: -14px;
   left: 0;
   right: 0;
-  background: $lightest-gray;
+  background: var(--theme-background, $lightest-gray);
   border-top: 1px solid $light-medium-gray;
   padding: 8px 10px 20px;
   font-weight: bold;

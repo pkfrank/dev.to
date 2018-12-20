@@ -68,6 +68,33 @@
       max-width:604px;
       float:left;
     }
+    .notifications-mobile-filters {
+      padding-bottom: 8px;
+      @media screen and ( min-width: 950px ){
+        display: none;
+      }
+      .query-filter-button{
+        font-size: 12px;
+        font-weight: bold;
+        background: transparent;
+        border: 0px;
+        display:inline-block;
+        width: 27%;
+        padding: 9px 0px;
+        text-align:left;
+        border-radius: 100px;
+        color: $black;
+        text-align: center;
+        margin: 1%;
+        &:hover{
+          background: lighten($bold-blue, 38%);
+        }
+        &.selected{
+          background: lighten($bold-blue, 8%);
+          color: white;
+        }
+      }
+    }
     .on-page-nav-controls{
       height:45px;
       position:relative;
@@ -194,6 +221,11 @@
           margin-top:12px;
         }
       }
+      h4{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .article-organization-headline {
         display:block;
         margin-bottom:calc(-1px - 0.6vw);
@@ -318,6 +350,9 @@
         left:62px;
         position:absolute;
         bottom:80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         a{
           color: #666666;
         }
@@ -470,6 +505,10 @@
       font-weight:bold;
       margin-top:-101px;
       position:absolute;
+      width: 80%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       z-index:10;
       left:62px;
       font-size:14px;
@@ -551,11 +590,11 @@
         text-align:center;
         bottom:12px;
         // border: 2px solid darken($purple, 30%);
-        background: darken($purple, 26%);
+        background: darken($purple, 38%);
         color: white;
         letter-spacing: 1px;
         &:hover{
-          background: darken($purple, 30%);
+          background: darken($purple, 50%);
         }
         img{
           height:17px;
@@ -840,6 +879,7 @@
               font-family: $helvetica;
               padding-bottom: 10px;
               padding-left:8px;
+              
               a{
                 color: $medium-gray;
                 padding: 7px 12px;
@@ -913,8 +953,19 @@
       border-radius:3px;
       border: 1px solid $outline-color;
       box-shadow: $bold-shadow;
+      &.fixed-widget {
+        position: fixed;
+        width: 254px;
+        top: 80px;
+        header {
+          padding-left: 6px;
+        }
+      }
       &:hover{
         opacity:1;
+      }
+      h4{
+        margin: 0;
       }
       &.signin-cta-widget{
         background: lighten($purple, 3%);
@@ -982,6 +1033,10 @@
         font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
         a{
           color: $black;
+          h4{
+            display: inline-block;
+            margin: 0;
+          }
           &:hover{
             text-decoration: underline;
           }
@@ -1004,7 +1059,7 @@
         padding-bottom:5px;
         &.body-scrollable{
           height: calc(100vh - 300px);
-          max-height: 500px;
+          max-height: 390px;
           overflow-y: scroll;
         }
         &.signup-cta-widget-body{
@@ -1126,14 +1181,16 @@
         border: 0px;
         display:block;
         padding: 6px 8px;
-        width: 100%;
+        width: calc(100% - 16px);
         text-align:left;
         border-radius: 0px;
+        color: $black;
         &:hover{
-          background: lighten($yellow, 15%);
+          background: lighten($bold-blue, 38%);
         }
         &.selected{
-          background: lighten($yellow, 2%);
+          background: lighten($bold-blue, 10%);
+          color: white;
         }
         &.query-type-filter-button{
           &:hover{
@@ -1205,7 +1262,7 @@
         margin-top:8px;
         padding:8px 0px;
         font-size:0.93em;
-        color: $sky-blue;
+        color: darken($sky-blue, 17%);
         background: white;
         display:block;
         width:92%;

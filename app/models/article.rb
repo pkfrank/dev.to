@@ -13,9 +13,9 @@ class Article < ApplicationRecord
   counter_culture :user
   belongs_to :organization, optional: true
   belongs_to :collection, optional: true
+  has_many :reactions,      as: :reactable, dependent: :destroy
   has_many :comments,       as: :commentable
   has_many :buffer_updates
-  has_many :reactions,      as: :reactable, dependent: :destroy
   has_many  :notifications, as: :notifiable
 
   validates :slug, presence: { if: :published? }, format: /\A[0-9a-z-]*\z/,
@@ -52,6 +52,7 @@ class Article < ApplicationRecord
   after_save        :bust_cache
   after_save        :update_main_image_background_hex
   after_save        :detect_human_language
+  after_update      :update_notifications, if: Proc.new { |article| article.notifications.length.positive? && !article.saved_changes.empty? }
   # after_save        :send_to_moderator
   # turned off for now
   before_destroy    :before_destroy_actions
@@ -299,6 +300,7 @@ class Article < ApplicationRecord
     fixed_body_markdown = MarkdownFixer.fix_all(body_markdown || "")
     parsed = FrontMatterParser::Parser.new(:md).call(fixed_body_markdown)
     parsed_markdown = MarkdownParser.new(parsed.content)
+    self.reading_time = parsed_markdown.calculate_reading_time
     self.processed_html = parsed_markdown.finalize
     evaluate_front_matter(parsed.front_matter)
   rescue StandardError => e
@@ -379,6 +381,10 @@ class Article < ApplicationRecord
 
   private
 
+  def update_notifications
+    Notification.update_notifications(self, "Published")
+  end
+
   # def send_to_moderator
   #   ModerationService.new.send_moderation_notification(self) if published
   #   turned off for now
@@ -387,8 +393,7 @@ class Article < ApplicationRecord
   def before_destroy_actions
     bust_cache
     remove_algolia_index
-    reactions.destroy_all
-    user.delay.resave_articles
+    user.cache_bust_all_articles
     organization&.delay&.resave_articles
   end
 
@@ -399,6 +404,9 @@ class Article < ApplicationRecord
       ActsAsTaggableOn::Taggable::Cache.included(Article)
       self.tag_list = []
       tag_list.add(front_matter["tags"], parser: ActsAsTaggableOn::TagParser)
+      TagAdjustment.where(article_id: id, adjustment_type: "removal", status: "committed").pluck(:tag_name).each do |name|
+        tag_list.remove(name, parser: ActsAsTaggableOn::TagParser)
+      end
     end
     self.published = front_matter["published"] if ["true", "false"].include?(front_matter["published"].to_s)
     self.published_at = parsed_date(front_matter["date"]) if published
@@ -421,6 +429,11 @@ class Article < ApplicationRecord
   end
 
   def validate_tag
+    # remove adjusted tags
+    TagAdjustment.where(article_id: id, adjustment_type: "removal", status: "committed").pluck(:tag_name).each do |name|
+      tag_list.remove(name, parser: ActsAsTaggableOn::TagParser)
+      self.tag_list = tag_list
+    end
     return errors.add(:tag_list, "exceed the maximum of 4 tags") if tag_list.length > 4
     tag_list.each do |tag|
       if tag.length > 20

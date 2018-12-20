@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     resources :articles
     resources :tags
     resources :welcome, only: %i[index create]
+    resources :reactions, only: [:update]
     resources :broadcasts
     resources :users do
       member do
@@ -48,7 +49,6 @@ Rails.application.routes.draw do
         post "save_status"
       end
     end
-    mount Flipflop::Engine => "/features"
   end
 
   namespace :api, defaults: { format: "json" } do
@@ -101,7 +101,7 @@ Rails.application.routes.draw do
   get "/reports/:slug", to: "feedback_messages#show"
   resources :organizations, only: %i[update create]
   resources :followed_articles, only: [:index]
-  resources :follows, only: %i[show create]
+  resources :follows, only: %i[show create update]
   resources :giveaways, only: %i[create update]
   resources :image_uploads, only: [:create]
   resources :blocks
@@ -121,8 +121,9 @@ Rails.application.routes.draw do
   resources :html_variant_trials, only: [:create]
   resources :html_variant_successes, only: [:create]
   resources :push_notification_subscriptions, only: [:create]
+  resources :tag_adjustments, only: [:create]
 
-  get "/notifications/:username" => "notifications#index"
+  get "/notifications/:filter" => "notifications#index"
   patch "/onboarding_update" => "users#onboarding_update"
   get "email_subscriptions/unsubscribe"
   post "/chat_channels/:id/moderate" => "chat_channels#moderate"
@@ -221,6 +222,7 @@ Rails.application.routes.draw do
   get "/scholarships", to: redirect("/p/scholarships")
   get "/memberships", to: redirect("/membership")
   get "/shop", to: redirect("https://shop.dev.to/")
+  get "/tag-moderation" => "pages#tag_moderation"
 
   post "/fallback_activity_recorder" => "ga_events#create"
 
@@ -237,7 +239,7 @@ Rails.application.routes.draw do
   get "/dashboard" => "dashboards#show"
   get "/dashboard/:which" => "dashboards#show",
       constraints: {
-        which: /organization|organization_user_followers|user_followers|following_users|reading/
+        which: /organization|organization_user_followers|user_followers|following_users|following|reading/
       }
   get "/dashboard/:username" => "dashboards#show"
 

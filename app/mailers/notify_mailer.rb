@@ -94,4 +94,18 @@ class NotifyMailer < ApplicationMailer
     subject = "You have been matched with a new DEV mentee!"
     mail(to: @mentor.email, subject: subject, from: "Liana (from dev.to) <liana@dev.to>")
   end
+
+  def export_email(user, attachment)
+    @user = user
+    export_filename = "devto-export-#{Date.current.iso8601}.zip"
+    attachments[export_filename] = attachment
+    mail(to: @user.email, subject: "The export of your data is ready")
+  end
+
+  def tag_moderator_confirmation_email(user, tag_name)
+    @tag_name = tag_name
+    @user = user
+    subject = "Congrats! You're the moderator for ##{tag_name}"
+    mail(to: @user.email, subject: subject)
+  end
 end
